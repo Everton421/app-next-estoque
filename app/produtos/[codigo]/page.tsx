@@ -1,7 +1,7 @@
 'use client';
 
 import { UseDateFunction } from '@/app/hooks/useDateFunction'; // Assuming correct path
-import { Active } from '@/app/pedidos/components/active'; // Assuming correct path
+import { Active } from '@/components/active';   // Assuming correct path
 import { configApi } from '@/app/services/api'; // Assuming correct path
 import { AlertDemo } from '@/components/alert/alert'; // Assuming correct path
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/carousel'; // Assuming correct path
@@ -85,8 +85,6 @@ export default function Prod({ params }: { params: { codigo: string } }) { // Ad
                         headers: {
                              token:  user.token 
                             },
-                            
-                       
                     }),
                     api.get(`/next/fotos`,
                          {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "../ui/button"
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
-import { Car, Ellipsis, Home, Package, PanelBottom, Settings, ShoppingBag, ShoppingCart, SlidersVertical, User, Wrench } from "lucide-react";
+import { Car, Ellipsis, FolderSync, Home, Package, PanelBottom, Settings, ShoppingBag, ShoppingCart, SlidersVertical, User, Warehouse, Wrench } from "lucide-react";
 import { Tooltip, TooltipProvider } from  "../ui/tooltip"
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 
@@ -38,19 +38,6 @@ export function Sidebar(){
                             
                         </Tooltip>
                         
-                      <Tooltip>
-                            <TooltipTrigger asChild>
-                                    <Link href="/pedidos" 
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center
-                                        rounded-lg text-muted-foreground transition-colors hover:text-foreground
-                                    ">
-                                <ShoppingCart className="h-4 w-5"/>
-                                    <span className="sr-only " > Pedidos</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right" className="m-5 bg-black text-white rounded-2xl p-1 " >Pedidos </TooltipContent>
-                        </Tooltip>
-
                         <Tooltip>
                             <TooltipTrigger asChild>
                                     <Link href="/produtos" 
@@ -62,55 +49,34 @@ export function Sidebar(){
                                 </Link>
                             </TooltipTrigger>
                             <TooltipContent side="right" className="m-5 bg-black text-white rounded-2xl p-1 " >produtos </TooltipContent>
-                        
                         </Tooltip>
 
-                        <Tooltip>
+                         <Tooltip>
                             <TooltipTrigger asChild>
-                                    <Link href="/clientes" 
+                                    <Link href="/setores" 
                                         className="flex h-9 w-9 shrink-0 items-center justify-center
                                         rounded-lg text-muted-foreground transition-colors hover:text-foreground
                                     ">
-                                <User className="h-4 w-5"/>
-                                    <span className="sr-only " > clientes</span>
+                                   <Warehouse className="h-4 w-5"/>
+                                    <span className="sr-only " > setores</span>
                                 </Link>
                             </TooltipTrigger>
-                            <TooltipContent side="right" className="m-5 bg-black text-white rounded-2xl p-1 " >clientes </TooltipContent>
-
+                            <TooltipContent side="right" className="m-5 bg-black text-white rounded-2xl p-1 " >setores </TooltipContent>
                         </Tooltip>
-
-                        
-                        <Tooltip>
+                          
+                          <Tooltip>
                             <TooltipTrigger asChild>
-                                    <Link href="/servicos" 
+                                    <Link href="/acertos" 
                                         className="flex h-9 w-9 shrink-0 items-center justify-center
                                         rounded-lg text-muted-foreground transition-colors hover:text-foreground
                                     ">
-                                           <Wrench className="h-5 w-5 transition-all" />
-                                    <span className="sr-only " > serviços</span>
+                                    <FolderSync className="h-4 w-5"/>
+                                    <span className="sr-only " > Acertos</span>
                                 </Link>
                             </TooltipTrigger>
-                            <TooltipContent side="right" className="m-5 bg-black text-white rounded-2xl p-1 " >serviços </TooltipContent>
+                            <TooltipContent side="right" className="m-5 bg-black text-white rounded-2xl p-1 " >Acertos </TooltipContent>
                         </Tooltip>
-
-
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                    <Link href="/veiculos" 
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center
-                                        rounded-lg text-muted-foreground transition-colors hover:text-foreground
-                                    ">
-                                           <Car className="h-5 w-5 transition-all"/>
-                                    <span className="sr-only " > veículos</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right" className="m-5 bg-black text-white rounded-2xl p-1 " >veículos </TooltipContent>
-                        </Tooltip>
-
-                        
-                      
-
-
+               
                     </TooltipProvider>
 
             <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-5">
@@ -148,9 +114,6 @@ export function Sidebar(){
 
                         <SheetContent className="sm:max-2-x" side="left">
                             <nav className="grid gap gap-6 tex"> 
-                                
-                                 
-
                                 <Link 
                                     href="/home"
                                     className="flex items-center gap-4 px-2.5 text-foreground hover:text-foreground"
@@ -158,15 +121,6 @@ export function Sidebar(){
                                     >
                                     <Home className="h-5 w-5 transition-all" />
                                      Início
-                                </Link>
-                                
-                                <Link 
-                                    href="/pedidos"
-                                    className="flex items-center gap-4 px-2.5 text-foreground hover:text-foreground"
-                                    prefetch={false}
-                                    >
-                                    <ShoppingBag className="h-5 w-5 transition-all" />
-                                     Pedidos
                                 </Link>
 
                                 <Link 
@@ -178,32 +132,25 @@ export function Sidebar(){
                                      Produtos
                                 </Link>
                                 <Link 
-                                    href="/clientes"
+                                    href="/setores"
                                     className="flex items-center gap-4 px-2.5 text-foreground hover:text-foreground"
                                     prefetch={false}
                                     >
-                                    <User className="h-5 w-5 transition-all" />
-                                     Clientes
+                                   <Warehouse className="h-4 w-5 transition-all"/>
+                                     setores
                                 </Link>
-                                <Link 
-                                    href="/servicos"
+
+
+                            <Link 
+                                    href="/acertos"
                                     className="flex items-center gap-4 px-2.5 text-foreground hover:text-foreground"
                                     prefetch={false}
                                     >
-                                <Wrench className="h-5 w-5 transition-all" />
-                                     serviços
+                                    <FolderSync className="h-4 w-5"/>
+                                     Acertos
                                 </Link>
-
-                                <Link 
-                                    href="/veiculos"
-                                    className="flex items-center gap-4 px-2.5 text-foreground hover:text-foreground"
-                                    prefetch={false}
-                                    >
-                                <Car className="h-5 w-5 transition-all"/>
-                                     veículos
-                                </Link>
-
-
+                           
+                          
                                 <Link 
                                     href="/configuracoes"
                                     className="flex items-center gap-4 px-2.5 text-foreground hover:text-foreground"

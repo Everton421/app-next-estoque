@@ -5,11 +5,8 @@
 'use client';
 
 import { UseDateFunction } from "@/app/hooks/useDateFunction";
-// Assuming Active component exists and is styled appropriately
-import { Active } from "@/app/pedidos/components/active";
 import { configApi } from "@/app/services/api";
 import { AlertDemo } from "@/components/alert/alert";
-// Import Shadcn UI Components
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -19,31 +16,34 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Save, ArrowLeft } from "lucide-react"; // Add ArrowLeft if you want a back button
 import { useRouter } from "next/navigation"; // Use router for navigation
 import { useCallback, useEffect, useState } from "react";
-import { basicServico } from "../types/servico";  
 import { ThreeDot } from "react-loading-indicators";
+import { ISetor } from "../types/setor";
 
 
-export default function ServicoEdit({ params }: { params: { codigo: string } }) {  
+export default function setorEdit({ params }: { params: { codigo: string } }) {  
 
-    const [data, setData] = useState<basicServico | null>(null);  
+    const [data, setData] = useState<ISetor | null>(null);  
     const [visibleAlert, setVisibleAlert] = useState(false);
     const [msgAlert, setMsgAlert] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);  
     const [isSaving, setIsSaving] = useState(false);  
 
-    const [aplicacao, setAplicacao] = useState<string>('');
-    const [valor, setValor] = useState<number | undefined>(undefined);  
+    const [descricao, setDescricao] = useState<string>('');
 
     const api = configApi();
     const useDateService = UseDateFunction();
     const { user,loading }: any = useAuth();  
     const router = useRouter();  
-
+       
+    
+    function delay(ms:number) {
+            return new Promise((resolve)=>{ setTimeout( resolve,ms )})
+           }
 
 
   useEffect(() => {
     if (!loading) {
-      if (!user) {
+      if (!user && !user.token) {
         router.push('/login'); // Redireciona para a página de login (ajuste se for outra)
       }
     }
@@ -58,54 +58,12 @@ export default function ServicoEdit({ params }: { params: { codigo: string } }) 
     );
   }
 
-    useEffect(() => {
-        if (  !params.codigo) {
-            console.warn("User or Codigo missing");
-             setIsLoading(false);  
-            return;
-        }
-        function delay(ms:number) {
-            return new Promise((resolve)=>{ setTimeout( resolve,ms )})
-           }
-
-        async function busca() {
-            setIsLoading(true);
- 
-            try {
-                const result = await api.get(`/servicos`, {
-                    params: { codigo: Number(params.codigo) , limit:1 },
-                    headers: { token:  user.token  },
-                });
-
-                if (result.status === 200 && result.data?.length > 0) {
-                    const dadosServico: basicServico = result.data[0];
-                    console.log(dadosServico);
-                    setData(dadosServico);
-                    setAplicacao(dadosServico.aplicacao || '');
-                    setValor(dadosServico.valor);
-                } else {
-                    console.warn(`Serviço com código ${params.codigo} não encontrado.`);
-                    setMsgAlert(`Serviço com código ${params.codigo} não encontrado.`);
-                    setVisibleAlert(true);
-                    setData(null); 
-                }
-            } catch (error) {
-                console.error("Erro ao buscar dados do serviço:", error);
-                setMsgAlert("Erro ao carregar dados do serviço.");
-                setVisibleAlert(true);
-                setData(null);  
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        busca();
-    }, [params.codigo ]);  
 
     async function gravar() {
         if (!data || isSaving) return;  
 
         setIsSaving(true);
-        const dadosParaGravar: Partial<basicServico> = {  
+        const dadosParaGravar: Partial<ISetor> = {  
             codigo: data.codigo,  
             id: data.id,  
             aplicacao: aplicacao,
@@ -140,6 +98,7 @@ export default function ServicoEdit({ params }: { params: { codigo: string } }) 
   
     }
 
+    /*
     const handleActive = useCallback((newStatus: 'S' | 'N') => {
          //console.log("Status change requested (implement if needed):", newStatus);
          setData(
@@ -149,12 +108,59 @@ export default function ServicoEdit({ params }: { params: { codigo: string } }) 
 
             )
     }, []);
+    */
+
+       async function busca() {
+            setIsLoading(true);
+ 
+            try {
+                const result = await api.get(`/setores`, {
+                    params: { codigo: Number(params.codigo) , limit:1 },
+                      headers:{ token:  user.token },
+                });
+
+                if (result.status === 200 && result.data?.length > 0) {
+                    const dadosSetor: ISetor = result.data[0];
+                    console.log(dadosSetor);
+                    setData(dadosSetor);
+                    setDescricao(dadosSetor.descricao || '');
+                } else {
+                    console.warn(`Setor com código ${params.codigo} não encontrado.`);
+                    setMsgAlert(`Setor com código ${params.codigo} não encontrado.`);
+                    setVisibleAlert(true);
+                    setData(null); 
+                }
+            } catch (error) {
+                console.error("Erro ao buscar dados do Setor:", error);
+                setMsgAlert("Erro ao carregar dados do Setor.");
+                setVisibleAlert(true);
+                setData(null);  
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+
+
+    useEffect(() => {
+        if (  !params.codigo) {
+            console.warn("User or Codigo missing");
+             setIsLoading(false);  
+            return;
+        }
+     
+        if( !user || !user.token){
+            console.log(`Token nao informado ${ user} `)
+            return
+        }else{
+        busca();
+        }
+    }, [  ]);  
 
 
     if (isLoading) {
         return (
                 <div className="flex justify-center items-center h-screen">
-
                  <ThreeDot variant="pulsate" color="#2563eb" size="medium" text="" textColor="" />
                </div>
         );
@@ -163,9 +169,9 @@ export default function ServicoEdit({ params }: { params: { codigo: string } }) 
      if (!data && !isLoading) {
          return (
              <div className="flex flex-col justify-center items-center min-h-screen p-4">
-                 <p className="text-xl text-red-600 mb-4">Serviço não encontrado ou erro ao carregar.</p>
-                 <Button onClick={() => router.push('/servicos')} variant="outline">
-                     <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Serviços
+                 <p className="text-xl text-red-600 mb-4">Setor não encontrado ou erro ao carregar.</p>
+                 <Button onClick={() => router.push('/setores')} variant="outline">
+                     <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Setores
                  </Button>
                  <AlertDemo content={msgAlert} title="Aviso" visible={visibleAlert} setVisible={setVisibleAlert} />
              </div>
@@ -174,11 +180,15 @@ export default function ServicoEdit({ params }: { params: { codigo: string } }) 
 
     if (!data) return null;
 
+
+
+
+
     return (
         <div className="h-screen flex flex-col sm:ml-14 bg-slate-100 overflow-hidden">
      <div className="w-full max-w-screen-2xl mx-auto bg-white rounded-lg shadow-md p-4 md:p-6 lg:p-8 flex flex-col flex-1">
 
-            <AlertDemo content={msgAlert} title="Aviso" visible={visibleAlert} setVisible={setVisibleAlert} to={'/servicos'} />
+            <AlertDemo content={msgAlert} title="Aviso" visible={visibleAlert} setVisible={setVisibleAlert} to={'/setores'} />
 
             <ScrollArea className="flex-1 p-4 md:p-6">
 
@@ -187,9 +197,9 @@ export default function ServicoEdit({ params }: { params: { codigo: string } }) 
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-2xl font-bold text-gray-800">
-                            Editar Serviço
+                            Editar Setor
                         </h1>
-                        <Button variant="outline" onClick={() => router.push('/servicos')}>
+                        <Button variant="outline" onClick={() => router.push('/setores')}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
                         </Button>
                     </div>
@@ -205,30 +215,15 @@ export default function ServicoEdit({ params }: { params: { codigo: string } }) 
                             </div>
 
                             <div>
-                                <Label htmlFor="aplicacao" className="text-sm font-medium text-gray-600">Aplicação:</Label>
+                                <Label htmlFor="descricao" className="text-sm font-medium text-gray-600">Descrição:</Label>
                                 <Input
-                                    id="aplicacao"
-                                    value={aplicacao}
-                                    onChange={(e) => setAplicacao(e.target.value)}
+                                    id="descricao"
+                                    value={descricao}
+                                    onChange={(e) => setDescricao(e.target.value)}
                                     className="mt-1 text-base"
-                                    placeholder="Descrição do serviço"
+                                    placeholder="Descrição do Setor"
                                 />
                             </div>
-
-                            {/* Valor Input */}
-                            <div>
-                                <Label htmlFor="valor" className="text-sm font-medium text-gray-600">Valor (R$):</Label>
-                                <Input
-                                    id="valor"
-                                    type="number"
-                                    step="0.01"
-                                    value={valor ?? ''} // Use empty string for input value if undefined
-                                    onChange={(e) => setValor(e.target.value === '' ? undefined : Number(e.target.value))} // Handle empty input for undefined state
-                                    className="mt-1 text-base"
-                                    placeholder="0.00"
-                                />
-                            </div>
-                            <Active active={data?.ativo} handleActive={handleActive} />
 
                         </CardContent>
                     </Card>

@@ -10,18 +10,23 @@ import { useEffect, useState } from "react";
 import { configApi } from "../services/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { basicServico } from "./types/servico";
 import { ThreeDot } from "react-loading-indicators";
+import { ISetor } from "./types/setor";
 
+type paramsGet = {
+   ativo:'S'|'N' 
+  codigo?:number
+  descricao?:string
+  }
 
-export default function servicos(){
+export default function setores(){
 
 const {user, loading }:any = useAuth();
 
  const [ pesquisa , setPesquisa ] = useState('');
  const [ dados, setDados ] = useState();
- const [ servicos, setServicos ] = useState([]);
- const [ filtroAtivo, setFiltroAtivo ] = useState('S');
+ const [ setores, setSetores ] = useState([]);
+ const [ filtroAtivo, setFiltroAtivo ] = useState<'S' | 'N'> ('S');
  const [isLoading, setIsLoading] = useState(false);  
 
     const api = configApi();
@@ -29,30 +34,39 @@ const {user, loading }:any = useAuth();
 
    
     async function busca() {
-      setServicos([])
+      setSetores([])
       setIsLoading(true)
       try{
+        let params:paramsGet = { 
+          ativo:filtroAtivo,
+        }
 
-      let result = await api.get(`/servicos`, { 
+        let verifPesqu = parseInt(pesquisa)
+
+          if( isNaN(verifPesqu)){
+            params.descricao = pesquisa
+        }else{
+            params.codigo = verifPesqu
+
+        }
+
+      let result = await api.get(`/setores`, { 
           headers:{
              token:  user.token 
           }, 
-          params:{
-            aplicacao: pesquisa,
-            ativo:filtroAtivo
-          }
+          params:params
           
       })
 
-      if( result.status === 200 && !result.data.erro ){
-          setServicos( result.data);
-          console.log(result.data)
+          if( result.status === 200 && !result.data.erro ){
+              setSetores( result.data);
+              console.log(result.data)
+          }
+      }catch(e:any){
+        console.log(e.response)
+      }finally{
+        setIsLoading(false)
       }
-    }catch(e:any){
-      console.log(e.response)
-    }finally{
-      setIsLoading(false)
-    }
     
     }
 
@@ -89,7 +103,7 @@ const {user, loading }:any = useAuth();
     }
 
     function handleClick(i:any) {
-      router.push(`/servicos/${i}`)
+      router.push(`/setores/${i}`)
   
        }
 
@@ -101,7 +115,7 @@ const {user, loading }:any = useAuth();
 
             <div className="m-5  flex justify-between   ">
                  <h1 className="text-2xl md:text-4xl font-bold font-sans text-gray-800">
-                     Serviços
+                     Setores
                   </h1>
                 </div>
 
@@ -147,7 +161,7 @@ const {user, loading }:any = useAuth();
           </div>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4   md:mt-0">
               <Button type="button" className="shadow-sm w-full sm:w-auto" 
-              onClick={()=> router.push('/servicos/novo')}
+              onClick={()=> router.push('/setores/novo')}
             >
               <Plus className="h-4 w-4 mr-2" /> Novo
             </Button>
@@ -160,54 +174,54 @@ const {user, loading }:any = useAuth();
 
             <div className="w-full mt-4  h-screen shadow-lg ">
                         <Table  className="w-full  bg-gray-100 rounded-sm ">
-                           <TableHead className= " w-[7%]   text-xs md:text-base">Codigo</TableHead>
-                           <TableHead className= " w-[75%]  text-xs md:text-base   " >aplicacao</TableHead>
-                           <TableHead className="  w-[15%]  text-xs md:text-base " > Valor</TableHead>
+                           <TableHead className= " w-[5%]   text-xs md:text-base">Codigo</TableHead>
+                           <TableHead className= " w-[70%]  text-xs md:text-base   " >Descrição</TableHead>
+                           <TableHead className= " w-[20%]  text-xs md:text-base   " >Data De Cadastro</TableHead>
                            <TableHead className=" text-base" > </TableHead>
                         </Table >
       { 
-        servicos.length > 0 ?
+        setores.length > 0 ?
         (
               <ScrollArea className="w-full mt-4  h-[80%] overflow-auto  shadow-lg rounded-lg  ">
                     <Table  className="w-full bg-white rounded-xl ">
        
                     <TableBody>
                  { 
-                      servicos.length > 0 && 
-                        servicos.map(( i:basicServico )=>(
+                      setores.length > 0 && 
+                        setores.map(( i:ISetor )=>(
                               <TableRow  
                               className="h-14 justify-center items-center"
                               key={i.codigo}
                               > 
                               
-                                <TableCell className=" text-xs md:text-base text-center font-medium text-gray-700 whitespace-nowrap w-[80px]" >  {i.codigo}     </TableCell>
-                                <TableCell className=" text-xs md:text-base text-left text-gray-600 w-[75%]"> {i?.aplicacao ?? ''}  </TableCell>
-                                <TableCell className=" text-xs md:text-base text-left text-gray-600 whitespace-nowrap w-[100px]"> R$ { i.valor?.toFixed(2) ?? '00' } </TableCell>
+                                <TableCell className=" text-xs md:text-base text-center font-medium text-gray-700 whitespace-nowrap w-[5%]  " >  {i.codigo}     </TableCell>
+                                <TableCell className=" text-xs md:text-base   text-gray-600 w-[70%] "> {i?.descricao ?? ''}  </TableCell>
+                                <TableCell className=" text-xs md:text-base   text-gray-600 w-[20%] "> {new Date(i?.data_cadastro).toLocaleString('pt-br',{ day:'2-digit', month:'short',year:'numeric'})  }  </TableCell>
                                 <TableCell className=" text-left   font-bold text-gray-600">  
-                      <div className="flex items-center justify-center gap-2">
-                              
-                                      <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-8 w-8"
-                                              onClick={() => handleClick(i.codigo)}
-                                              title="Editar Produto"
-                                            >
-                                              <Edit className="h-4 w-4" />
-                                           </Button>
-                                <div
-                                    className={`p-1 w-5 h-5 rounded-full flex items-center justify-center ${
-                                      i.ativo === 'S' ? 'bg-green-600' : 'bg-red-600'
-                                    }`}
-                                    title={i.ativo === 'S' ? 'Ativo' : 'Inativo'}
-                                  >
-                                    {i.ativo === 'S' ? (
-                                      <Check size={16} color="#FFF" strokeWidth={3} />
-                                    ) : (
-                                      <X size={16} color="#FFF" strokeWidth={3} />
-                                      )}
+                                  <div className="flex items-center justify-center gap-2">
+                                  
+                                          <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  className="h-8 w-8"
+                                                  onClick={() => handleClick(i.codigo)}
+                                                  title="Editar Produto"
+                                                >
+                                                  <Edit className="h-4 w-4" />
+                                              </Button>
+                                    <div
+                                        className={`p-1 w-5 h-5 rounded-full flex items-center justify-center ${
+                                          i.ativo === 'S' ? 'bg-green-600' : 'bg-red-600'
+                                        }`}
+                                        title={i.ativo === 'S' ? 'Ativo' : 'Inativo'}
+                                      >
+                                        {i.ativo === 'S' ? (
+                                          <Check size={16} color="#FFF" strokeWidth={3} />
+                                        ) : (
+                                          <X size={16} color="#FFF" strokeWidth={3} />
+                                          )}
+                                      </div>
                                   </div>
-                              </div>
 
                                 </TableCell>
                                
@@ -226,7 +240,7 @@ const {user, loading }:any = useAuth();
             <ThreeDot variant="pulsate" color="#2563eb" size="medium" text="" textColor="" />
           </div>
       ):
-          <span className=" text-xs md:text-xl text-gray-500 text-center   m-7 "> nenhum serviço encontrado!</span>
+          <span className=" text-xs md:text-xl text-gray-500 text-center   m-7 "> nenhum setor encontrado!</span>
       
         )  
       }         

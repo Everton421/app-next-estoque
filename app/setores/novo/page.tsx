@@ -5,8 +5,7 @@
 'use client';
 
 import { UseDateFunction } from "@/app/hooks/useDateFunction";
-// Assuming Active component exists and is styled appropriately
-import { Active } from "@/app/pedidos/components/active";
+import { Active } from "@/components/active"; 
 import { configApi } from "@/app/services/api";
 import { AlertDemo } from "@/components/alert/alert";
 // Import Shadcn UI Components
@@ -19,20 +18,19 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Save, ArrowLeft } from "lucide-react"; // Add ArrowLeft if you want a back button
 import { useRouter } from "next/navigation"; // Use router for navigation
 import { useCallback, useEffect, useState } from "react";
-import { basicServico } from "../types/servico";  
 import { ThreeDot } from "react-loading-indicators";
+import { ISetor } from "../types/setor";
 
 
-export default function NovoServico() {  
+export default function NovoSetor() {  
 
-    const [data, setData] = useState<basicServico | null>(null);  
+    const [data, setData] = useState<ISetor| null>(null);  
     const [visibleAlert, setVisibleAlert] = useState(false);
     const [msgAlert, setMsgAlert] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);  
     const [isSaving, setIsSaving] = useState(false);  
 
-    const [aplicacao, setAplicacao] = useState<string>('');
-    const [valor, setValor] = useState<number | undefined>(undefined);  
+    const [descricao, setDescricao] = useState<string>('');
 
     const api = configApi();
     const useDateService = UseDateFunction();
@@ -68,41 +66,33 @@ export default function NovoServico() {
      //   if (!data || isSaving) return;  
 
         setIsSaving(true);
-        const dadosParaGravar: Partial<basicServico> = {  
-            aplicacao: aplicacao,
-            valor: valor,
+        const dadosParaGravar: Partial<ISetor> = {  
+            descricao: descricao,
             data_recadastro: useDateService.obterDataHoraAtual(),
-             tipo_serv: 0,  
         };
 
 
         console.log("Enviando para API:", dadosParaGravar);  
 
         try {
-            const result = await api.post('/servico', dadosParaGravar, {
+            const result = await api.post('/setores', dadosParaGravar, {
                 headers: { token:  user.token  },
             });
             if (result.status === 200 && result.data?.codigo > 0) {  
                 console.log(result);
                 setVisibleAlert(true);
-                setMsgAlert(`Serviço ${result.data.codigo} Registrado com Sucesso!`);
+                setMsgAlert(`Setor ${result.data.codigo} Registrado com Sucesso!`);
             } else {
-                 throw new Error(result.data?.message || `Erro ao salvar Serviço. Status: ${result.status}`);
+                 throw new Error(result.data?.message || `Erro ao salvar Setor. Status: ${result.status}`);
             }
         } catch (error: any) {
-            console.error("Erro ao gravar serviço:", error);
-            setMsgAlert(error.message || `Erro ao Registrar serviço.`);
+            console.error("Erro ao gravar Setor:", error);
+            setMsgAlert(error.message || `Erro ao Registrar Setor.`);
             setVisibleAlert(true);
         } finally {
             setIsSaving(false);
         }
     }
-
-
-
-    const handleActive = useCallback((newStatus: 'S' | 'N') => {
-         console.log("Status change requested (implement if needed):", newStatus);
-    }, []);
 
  
 
@@ -111,7 +101,7 @@ export default function NovoServico() {
         <div className="h-screen flex flex-col sm:ml-14 bg-slate-100 overflow-hidden">
      <div className="w-full max-w-screen-2xl mx-auto bg-white rounded-lg shadow-md p-4 md:p-6 lg:p-8 flex flex-col flex-1">
 
-            <AlertDemo content={msgAlert} title="Aviso" visible={visibleAlert} setVisible={setVisibleAlert} to={'/servicos'} />
+            <AlertDemo content={msgAlert} title="Aviso" visible={visibleAlert} setVisible={setVisibleAlert} to={'/setores'} />
 
             <ScrollArea className="flex-1 p-4 md:p-6">
 
@@ -120,16 +110,16 @@ export default function NovoServico() {
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-2xl font-bold text-gray-800">
-                            Novo Serviço
+                            Novo Setor
                         </h1>
-                        <Button variant="outline" onClick={() => router.push('/servicos')}>
+                        <Button variant="outline" onClick={() => router.push('/setores')}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
                         </Button>
                     </div>
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Detalhes do Serviço</CardTitle>
+                            <CardTitle>Detalhes do Setor</CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
                             <div>
@@ -138,27 +128,13 @@ export default function NovoServico() {
                             </div>
 
                             <div>
-                                <Label htmlFor="aplicacao" className="text-sm font-medium text-gray-600">Aplicação:</Label>
+                                <Label htmlFor="descricao" className="text-sm font-medium text-gray-600">Descrição:</Label>
                                 <Input
-                                    id="aplicacao"
-                                    value={aplicacao}
-                                    onChange={(e) => setAplicacao(e.target.value)}
+                                    id="descricao"
+                                    value={descricao}
+                                    onChange={(e) => setDescricao(e.target.value)}
                                     className="mt-1 text-base"
-                                    placeholder="Descrição do serviço"
-                                />
-                            </div>
-
-                            {/* Valor Input */}
-                            <div>
-                                <Label htmlFor="valor" className="text-sm font-medium text-gray-600">Valor (R$):</Label>
-                                <Input
-                                    id="valor"
-                                    type="number"
-                                    step="0.01"
-                                    value={valor ?? ''} // Use empty string for input value if undefined
-                                    onChange={(e) => setValor(e.target.value === '' ? undefined : Number(e.target.value))} // Handle empty input for undefined state
-                                    className="mt-1 text-base"
-                                    placeholder="0.00"
+                                    placeholder="Descrição do Setor"
                                 />
                             </div>
 
