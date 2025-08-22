@@ -131,10 +131,10 @@ export default function acertos (){
                     key={mv.movimento.codigo}
                     className="hover:bg-gray-50 h-14"
                   >
-                    <TableCell className=" text-left font-medium text-gray-700 whitespace-nowrap w-[35%] items-center text-xs md:text-base ">{mv.produto.descricao}</TableCell>
-                    <TableCell className=" text-left text-gray-600    text-xs md:text-base w-[5%] "  > {mv.movimento.unidade_medida}</TableCell>
-                    <TableCell className="  text-gray-600   text-xs md:text-base w-[15%] text-center ">  {mv.movimento.quantidade}</TableCell>
-                    <TableCell className="  text-gray-600   text-xs md:text-base w-[10%] text-center ">  {new Date(mv.movimento.data_recadastro).toLocaleString('pt-br',{day:'2-digit',month:'short',year:'numeric'})}</TableCell>
+                    <TableCell className=" text-left   text-gray-700 whitespace-nowrap w-[35%] items-center text-xs md:text-base ">{mv.produto.descricao}</TableCell>
+                    <TableCell className=" text-left text-gray-600    text-xs md:text-base w-[5%] "  > {mv.movimento.unidade_medida} </TableCell>
+                    <TableCell className="  text-gray-600   text-xs md:text-base w-[15%] text-center "> {mv.movimento.quantidade} </TableCell>
+                    <TableCell className="  text-gray-600   text-xs md:text-base w-[10%] text-center "> {new Date(mv.movimento.data_recadastro).toLocaleString('pt-br',{day:'2-digit',month:'short',year:'numeric'})}</TableCell>
 
                     {/**
                     <TableCell className=" text-center  ">

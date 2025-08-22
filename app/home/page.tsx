@@ -34,7 +34,6 @@ type DashboardData = {
     pedidosRecentes: PedidoRecente[];
 }
 
-// --- Componente de Card para KPIs (reutilizável) ---
 const KpiCard = ({ title, value, icon: Icon, description }: { title: string, value: string, icon: React.ElementType, description?: string }) => (
     <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -54,11 +53,9 @@ export default function Home() {
   const api = configApi();
   const dateService = DateService();
 
-  // <<< MUDANÇA 1: Estado inicializado como null para aguardar os dados da API
   const [dashboardData, setDashboardData] = useState<any | null>(null);
   const [loadingData, setLoadingData] = useState(true);
   
-  // Estados para filtro de data (mantidos para uso futuro)
   const [dataInicial, setDataInicial] = useState(dateService.obterDataAtualPrimeiroDiaDoMes() + ' 00:00:00');
   const [dataFinal, setDataFinal] = useState(dateService.obterDataHoraAtual());
 
@@ -69,9 +66,7 @@ export default function Home() {
   }, [user, authLoading, router]);
 
 
-  // <<< MUDANÇA 2: useEffect unificado e refatorado para buscar e processar os dados da API
   useEffect(() => {
-    // Só executa a busca se o usuário estiver carregado
     if (user) {
         const fetchDashboardData = async () => {
             setLoadingData(true);
@@ -79,8 +74,6 @@ export default function Home() {
                 const header = { token: user.token };
                 const params = { 
                     vendedor: user.codigo, 
-                    // Você pode usar as datas do estado aqui quando o filtro estiver ativo
-                    // data_inicial: dataInicial,
                     // data_final: dataFinal
                 };
 
@@ -95,14 +88,8 @@ export default function Home() {
                     api.get('/pedidos_ultimos_inseridos', { headers: header, params })
                 ]);
 
-                // <<< MUDANÇA 4: Processando e combinando os dados das respostas
-                
-                // Supondo que a API /pedidos_totais retorna um array com um único objeto
                 const totais = responseTotais.data[0] || {};
 
-                // Supondo que a API /pedidos_ultimos_inseridos retorna um array de pedidos
-                // e o nome do cliente vem como 'cliente_nome' ou algo similar.
-                // É preciso mapear para o formato que o componente espera: { cliente: { nome: '...' } }
                 const pedidosRecentesFormatados = responsePedidosRecentes.data.map((pedido: any) => ({
                     id: pedido.id, // ou pedido.numero_pedido
                     id_externo: pedido.id_externo,
@@ -127,12 +114,10 @@ export default function Home() {
                     pedidosRecentes: pedidosRecentesFormatados,
                 };
                 
-                // <<< MUDANÇA 5: Atualizando o estado com os dados da API
                 setDashboardData(dadosFinais);
 
             } catch (error) {
                 console.error("Erro ao buscar dados do dashboard:", error);
-                // Opcional: mostrar uma mensagem de erro na tela
             } finally {
                 setLoadingData(false);
             }
@@ -210,61 +195,7 @@ export default function Home() {
                 />
             </section>
 
-            {/* Seção Principal com Gráfico e Pedidos Recentes */}
-            <section className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-                <Card className="lg:col-span-4">
-                    <CardHeader>
-                        <CardTitle>Visão Geral das Vendas</CardTitle>
-                        <CardDescription>
-                           Vendas diárias no período selecionado.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pl-2">
-                        <ChartOverView   />
-                    </CardContent>
-                </Card>
-
-                <Card className="lg:col-span-3">
-                     <CardHeader>
-                        <CardTitle>Pedidos Recentes</CardTitle>
-                        <CardDescription>
-                            Os últimos pedidos realizados.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                       <div className="space-y-4 ">
-                            {dashboardData.pedidosRecentes.map((pedido:any) => (
-                                <div key={pedido.id} className="flex items-center border rounded-sm p-2">
-                                    <div className="ml-3 mr-4">
-                                          {pedido.situacao == 'RE' &&  <X size={20}  className="bg-red-600" color='#FFF'  /> }
-                                                 {pedido.situacao == 'EA' &&  <Check size={20} className="bg-green-700 " color='#FFF'  /> }
-                                                 {pedido.situacao == 'AI' &&  <CheckCheck size={20} className="bg-blue-400"  color='#FFF' /> }
-                                                 {pedido.situacao == 'FI' &&  <ClipboardCheck size={20}  className="bg-orange-500"  color='#FFF' /> }
-                                                 {pedido.situacao == 'FP' &&  <ClipboardPenLine size={20}  className="bg-blue-700" color='#FFF' /> }
-                                     </div>
-
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-sm font-medium leading-none">{pedido.cliente.nome}</p>
-                                        
-                                      <div className= " flex gap-3">   
-                                        <p className="text-sm text-muted-foreground text-blue-600 font-bold ">Id: {pedido.id}</p>
-                                    {   pedido.id_externo && pedido.id_externo !== null &&
-                                        <p className="text-sm text-muted-foreground text-blue-600 font-bold ">Id Externo: {pedido.id_externo}</p>
-                                     }
-                                     </div>
-                                      
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-semibold">
-                                            {pedido.valor_total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                       </div>
-                    </CardContent>
-                </Card>
-            </section>
+             
         </ScrollArea>
         ) : (
             // Opcional: Mensagem para quando não há dados ou ocorreu um erro

@@ -202,7 +202,7 @@ export default function Produtos() {
        <div className="w-full mt-4  h-screen shadow-lg ">
                 <Table  className="w-full  bg-gray-100 rounded-sm ">
                       <TableHead className= " w-[7%]   text-xs md:text-base ">Codigo</TableHead>
-                      <TableHead className= " w-[35%]  text-xs md:text-base   text-start" >Descricao</TableHead>
+                      <TableHead className= " w-[50%]  text-xs md:text-base   text-start" >Descricao</TableHead>
                       <TableHead className="   text-xs md:text-base max-w-16  " > Preco</TableHead>
                       <TableHead  className=" text-xs md:text-base text-center  "   >Estoque</TableHead>
                       <TableHead className="    text-xs md:text-base " > </TableHead>
